@@ -150,7 +150,7 @@ In the above example:
 
 - A GitRepository named podinfo is created, indicated by the .metadata.name field.
 - The source-controller checks the Git repository every five minutes, indicated by the .spec.interval field.
-- It clones the master branch of the https://github.com/stefanprodan/podinfo repository, indicated by the .spec.ref.branch and .spec.url fields.
+- It clones the master branch of the [stefanprodan/podinfo](https://github.com/stefanprodan/podinfo) repository, indicated by the .spec.ref.branch and .spec.url fields.
 - The specified branch and resolved HEAD revision are used as the Artifact revision, reported in-cluster in the .status.artifact.revision field.
 - When the current GitRepository revision differs from the latest fetched revision, a new Artifact is archived.
 - The new Artifact is reported in the .status.artifact field.
@@ -160,3 +160,48 @@ Commit and push the podinfo-source.yaml file to the repository:
 ```sh
 git add . && git commit -m "added podinfo GitRepository"
 ```
+
+### Deployment
+
+Configure Flux to build and apply the kustomize directory located in the [stefanprodan/podinfo](https://github.com/stefanprodan/podinfo) repository.  
+
+The Kustomization API defines a pipeline for fetching, decrypting, building, validating and applying Kustomize overlays or plain Kubernetes manifests.  
+The Kustomization Custom Resource Definition is the counterpart of Kustomize’ `kustomization.yaml` config file.
+
+Use the flux create command to create a Kustomization that applies the podinfo deployment.
+
+```sh
+flux create kustomization podinfo \
+  --target-namespace=default \
+  --source=podinfo \
+  --path="./kustomize" \
+  --prune=true \
+  --interval=5m \
+  --export > ./clusters/my-cluster/podinfo-kustomization.yaml
+```
+
+The output will be similar to:
+
+```yaml
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: podinfo
+  namespace: flux-system
+spec:
+  interval: 5m0s
+  path: ./kustomize
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: podinfo
+  targetNamespace: default
+```
+
+In the above example:
+
+- A Flux Kustomization named podinfo is created that watches the GitRepository for artifact changes.
+- The Kustomization builds the YAML manifests located at the specified `spec.path`, sets the namespace of all objects to the `spec.targetNamespace`, validates the objects against the Kubernetes API, and finally applies them on the cluster.
+- Every 5 minutes, the Kustomization runs a server-side apply dry-run to detect and correct drift inside the cluster.
+- When the Git revision changes, the manifests are reconciled automatically. If previously applied objects are missing from the current revision, these objects are deleted from the cluster when spec.prune is enabled.
