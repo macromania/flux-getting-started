@@ -284,9 +284,9 @@ The `helmrelease create` command generates a `HelmRelease` resource for the `Hel
 ```sh
 flux create helmrelease kubeview \
   --chart=kubeview \
-  --interval=10m \
+  --interval=1m0s \
   --chart-version 0.1.31 \
   --source=HelmRepository/kubeview \
-  --export > ./clusters/my-cluster/kubeview-kustomization.yaml
+  --export > ./clusters/my-cluster/kubeview-helmrelease.yaml
 ```
 

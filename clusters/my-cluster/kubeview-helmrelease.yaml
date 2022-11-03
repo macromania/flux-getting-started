@@ -13,5 +13,5 @@ spec:
         kind: HelmRepository
         name: kubeview
       version: 0.1.31
-  interval: 10m0s
+  interval: 1m0s
 
