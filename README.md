@@ -267,14 +267,13 @@ The app auto refreshes and dynamically updates the view as new data comes in or 
 
 ##### 1. Create Source
 
-Create a HelmRepository manifest pointing to KubeView repository’s main branch.
-The HelmRepository API defines a Source to produce an Artifact for  a Helm repository index YAML `(index.yaml)`.  
+Create a ImageRepository manifest pointing to KubeView Github Image Repository.
 
 ```sh
-flux create source helm kubeview \
-  --url=https://github.com/benc-uk/kubeview \
-  --interval=30s \
-  --export > ./clusters/my-cluster/kubeview-source.yaml
+flux create image repository kubeview \
+  --image=ghcr.io/benc-uk/kubeview \
+  --interval=1m \
+  --export > ./clusters/my-cluster/kubeview-registry.yaml
 ```
 
 ##### 1. Create Deployment Pipeline aka Kustomize
