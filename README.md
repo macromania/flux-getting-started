@@ -24,7 +24,7 @@ CONTAINER ID   IMAGE                  COMMAND                  CREATED         S
 13ebb8a488b4   kindest/node:v1.25.3   "/usr/local/bin/entr…"   2 minutes ago   Up 2 minutes   127.0.0.1:65063->6443/tcp   moonshot-control-plane
 ```
 
-By default, the cluster access configuration is stored in `${HOME}/.kube/config` if `$KUBECONFIG` environment variable is not set.
+By default, the cluster access configuration is stored in `${HOME}/.kube/config` if `$KUBECONFIG` environment variable is not set.  
 You can use the new directly from terminal as Kind must have already set your `kubectl` context. You can check current context with:
 
 ```sh
@@ -40,7 +40,7 @@ You need a repository to push configurations of your cluster so that Flux can pu
 You can create a personal access token to use in place of a password with the command line or with the API.
 For that, Flux needs `GITHUB_TOKEN` and `GITHUB_USER` available in the environment.
 
-There are multiple ways to create a `GITHUB_TOKEN`. A simpler way could be using [Github Settings Page](https://github.com/settings/tokens?type=beta).
+There are multiple ways to create a `GITHUB_TOKEN`. A simpler way could be using [Github Settings Page](https://github.com/settings/tokens?type=beta).  
 More details can be found on this page:
 <https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>.
 
@@ -99,3 +99,64 @@ The bootstrap command above does following:
 - Adds Flux component manifests to the repository
 - Deploys Flux Components to your Kubernetes Cluster
 - Configures Flux components to track the path /clusters/my-cluster/ in the repository
+
+Your repository will have following directories and files:
+
+```sh
+.
+└── clusters
+    └── my-cluster
+        └── flux-system
+            ├── gotk-components.yaml
+            ├── gotk-sync.yaml
+            └── kustomization.yaml
+```
+
+### Pods
+
+This example uses a public repository [stefanprodan/podinfo](github.com/stefanprodan/podinfo).  
+Podinfo is a tiny web application made with Go that showcases best practices of running microservices in Kubernetes.  
+Podinfo is used by CNCF projects like Flux and Flagger for end-to-end testing and workshops.
+
+Create a GitRepository manifest pointing to podinfo repository’s master branch.
+The GitRepository API defines a Source to produce an Artifact for a Git repository revision.
+
+```sh
+flux create source git podinfo \
+  --url=https://github.com/stefanprodan/podinfo \
+  --branch=master \
+  --interval=30s \
+  --export > ./clusters/my-cluster/podinfo-source.yaml
+  ```
+
+  The output will be similar to:
+
+  ```yaml
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: GitRepository
+metadata:
+  name: podinfo
+  namespace: flux-system
+spec:
+  interval: 30s
+  ref:
+    branch: master
+  url: https://github.com/stefanprodan/podinfo
+
+  ```
+
+In the above example:
+
+- A GitRepository named podinfo is created, indicated by the .metadata.name field.
+- The source-controller checks the Git repository every five minutes, indicated by the .spec.interval field.
+- It clones the master branch of the https://github.com/stefanprodan/podinfo repository, indicated by the .spec.ref.branch and .spec.url fields.
+- The specified branch and resolved HEAD revision are used as the Artifact revision, reported in-cluster in the .status.artifact.revision field.
+- When the current GitRepository revision differs from the latest fetched revision, a new Artifact is archived.
+- The new Artifact is reported in the .status.artifact field.
+
+Commit and push the podinfo-source.yaml file to the repository:
+
+```sh
+git add . && git commit -m "added podinfo GitRepository"
+```
