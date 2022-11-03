@@ -1,0 +1,16 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kubeview
+  namespace: flux-system
+spec:
+  chart:
+    spec:
+      chart: kubeview
+      reconcileStrategy: ChartVersion
+      sourceRef:
+        kind: HelmRepository
+        name: kubeview
+  interval: 10m0s
+

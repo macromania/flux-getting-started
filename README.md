@@ -257,3 +257,35 @@ When a Kubernetes manifest is removed from the podinfo repository, Flux removes 
 When you delete a Kustomization from the repository, Flux removes all Kubernetes objects previously applied from that Kustomization.  
 When you alter the podinfo deployment using kubectl edit, the changes are reverted to match the state described in Git.
 
+#### Bonus
+
+Deploy Kubernetes cluster visualiser and visual explorer: KubeView.
+
+KubeView displays what is happening inside a Kubernetes cluster (or single namespace), it maps out the API objects and how they are interconnected.  
+Data is fetched real-time from the Kubernetes API. The status of some objects (Pods, ReplicaSets, Deployments) is colour coded red/green to represent their status and health.  
+The app auto refreshes and dynamically updates the view as new data comes in or when it changes.
+
+##### 1. Create Source
+
+Create a HelmRepository manifest pointing to KubeView repository’s main branch.
+The HelmRepository API defines a Source to produce an Artifact for  a Helm repository index YAML `(index.yaml)`.  
+
+```sh
+flux create source helm kubeview \
+  --url=https://github.com/benc-uk/kubeview \
+  --interval=30s \
+  --export > ./clusters/my-cluster/kubeview-source.yaml
+```
+
+##### 1. Create Deployment Pipeline aka Kustomize
+
+The `helmrelease create` command generates a `HelmRelease` resource for the `HelmRepository` source located in the [benc-uk/kubeview](https://github.com/benc-uk/kubeview) repository.
+
+```sh
+flux create hr kubeview \
+  --interval=10m \
+  --source=HelmRepository/kubeview \
+  --chart=kubeview \
+  --export > ./clusters/my-cluster/kubeview-kustomization.yaml
+```
+
