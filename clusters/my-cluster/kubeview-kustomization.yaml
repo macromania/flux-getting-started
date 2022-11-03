@@ -5,4 +5,4 @@ metadata:
   name: kubeview
   namespace: default
 resources:
-  - kubeview-deployment.yaml
+- kubeview-deployment.yaml
