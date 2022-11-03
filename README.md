@@ -282,10 +282,11 @@ flux create source helm kubeview \
 The `helmrelease create` command generates a `HelmRelease` resource for the `HelmRepository` source located in the [benc-uk/kubeview](https://github.com/benc-uk/kubeview) repository.
 
 ```sh
-flux create hr kubeview \
-  --interval=10m \
-  --source=HelmRepository/kubeview \
+flux create helmrelease kubeview \
   --chart=kubeview \
+  --interval=10m \
+  --chart-version 0.1.31 \
+  --source=HelmRepository/kubeview \
   --export > ./clusters/my-cluster/kubeview-kustomization.yaml
 ```
 
