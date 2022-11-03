@@ -40,8 +40,14 @@ You need a repository to push configurations of your cluster so that Flux can pu
 You can create a personal access token to use in place of a password with the command line or with the API.
 For that, Flux needs `GITHUB_TOKEN` and `GITHUB_USER` available in the environment.
 
-There are multiple ways to create a `GITHUB_TOKEN`. A simpler way could be using [github cli](https://cli.github.com/).
+There are multiple ways to create a `GITHUB_TOKEN`. A simpler way could be using [Github Settings Page](https://github.com/settings/tokens?type=beta).
+More details can be found on this page:
+<https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token>.
+
+After creating your token, add it to your environment
 
 ```sh
-
+export GITHUB_TOKEN=<your-token>
+export GITHUB_USER=<your-username>
 ```
+
