@@ -1,0 +1,2 @@
+resources:
+- kubeview-deployment.yaml
