@@ -51,3 +51,51 @@ export GITHUB_TOKEN=<your-token>
 export GITHUB_USER=<your-username>
 ```
 
+Check you have everything needed to run Flux by running the following command:
+
+```sh
+flux check --pre
+```
+
+## Flux
+
+Run the bootstrap command:
+
+```sh
+flux bootstrap github \
+  --owner=$GITHUB_USER \
+  --repository=<YOUR REPOSITORY> \
+  --branch=main \
+  --path=./clusters/my-cluster \
+  --personal
+```
+
+The output will be similar to:
+
+```sh
+► connecting to github.com
+✔ repository created
+✔ repository cloned
+✚ generating manifests
+✔ components manifests pushed
+► installing components in flux-system namespace
+deployment "source-controller" successfully rolled out
+deployment "kustomize-controller" successfully rolled out
+deployment "helm-controller" successfully rolled out
+deployment "notification-controller" successfully rolled out
+✔ install completed
+► configuring deploy key
+✔ deploy key configured
+► generating sync manifests
+✔ sync manifests pushed
+► applying sync manifests
+◎ waiting for cluster sync
+✔ bootstrap finished
+```
+
+The bootstrap command above does following:
+
+- Creates a git repository `<YOUR REPOSITORY>` on your GitHub account
+- Adds Flux component manifests to the repository
+- Deploys Flux Components to your Kubernetes Cluster
+- Configures Flux components to track the path /clusters/my-cluster/ in the repository
