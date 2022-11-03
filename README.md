@@ -267,36 +267,3 @@ kubectl port-forward service/podinfo 9898:9898
 
 This creates a forwarding between `localhost:9898` and `service/podinfo` in your cluster.  
 Visiting `http://localhost:9898` will show podinfo welcome page.
-
-#### Bonus
-
-Deploy Kubernetes cluster visualiser and visual explorer: KubeView.
-
-KubeView displays what is happening inside a Kubernetes cluster (or single namespace), it maps out the API objects and how they are interconnected.  
-Data is fetched real-time from the Kubernetes API. The status of some objects (Pods, ReplicaSets, Deployments) is colour coded red/green to represent their status and health.  
-The app auto refreshes and dynamically updates the view as new data comes in or when it changes.
-
-##### 1. Create Source
-
-Create a ImageRepository manifest pointing to KubeView Github Image Repository.
-
-```sh
-flux create image repository kubeview \
-  --image=ghcr.io/benc-uk/kubeview \
-  --interval=1m \
-  --export > ./clusters/my-cluster/kubeview-registry.yaml
-```
-
-##### 1. Create Deployment Pipeline aka Kustomize
-
-The `helmrelease create` command generates a `HelmRelease` resource for the `HelmRepository` source located in the [benc-uk/kubeview](https://github.com/benc-uk/kubeview) repository.
-
-```sh
-flux create helmrelease kubeview \
-  --chart=kubeview \
-  --interval=1m0s \
-  --chart-version 0.1.31 \
-  --source=HelmRepository/kubeview \
-  --export > ./clusters/my-cluster/kubeview-helmrelease.yaml
-```
-
