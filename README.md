@@ -204,4 +204,56 @@ In the above example:
 - A Flux Kustomization named podinfo is created that watches the GitRepository for artifact changes.
 - The Kustomization builds the YAML manifests located at the specified `spec.path`, sets the namespace of all objects to the `spec.targetNamespace`, validates the objects against the Kubernetes API, and finally applies them on the cluster.
 - Every 5 minutes, the Kustomization runs a server-side apply dry-run to detect and correct drift inside the cluster.
-- When the Git revision changes, the manifests are reconciled automatically. If previously applied objects are missing from the current revision, these objects are deleted from the cluster when spec.prune is enabled.
+- When the Git revision changes, the manifests are reconciled automatically. If previously applied objects are missing from the current revision, these objects are deleted from the cluster when spec.prune is enabled.  
+
+The structure of the repo should be similar to:
+
+```sh
+.
+└── clusters
+    └── my-cluster
+        ├── flux-system
+        │   ├── gotk-components.yaml
+        │   ├── gotk-sync.yaml
+        │   └── kustomization.yaml
+        ├── podinfo-kustomization.yaml
+        └── podinfo-source.yaml
+```
+
+Use the flux get command to watch the podinfo app.
+
+```sh
+flux get kustomizations --watch
+```
+
+The output will be similar to:
+
+```sh
+NAME       	 REVISION      	 SUSPENDED	READY	MESSAGE                          
+flux-system	 main/a8f2ca3  	 False    	True 	Applied revision: main/a8f2ca3  	
+podinfo    	 master/1cf228c	 False    	True 	Applied revision: master/1cf228c
+```
+
+Check podinfo has been deployed on your cluster:
+
+```sh
+kubectl -n default get deployments,services
+```
+
+The output will be similar to:
+
+```sh
+NAME                        READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/podinfo     2/2     2            2           4m4s
+
+NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)             AGE
+service/kubernetes          ClusterIP   10.96.0.1       <none>        443/TCP             81m
+service/podinfo             ClusterIP   10.96.128.181   <none>        9898/TCP,9999/TCP   4m4s
+```
+
+This shows that changes made to the `podinfo` Kubernetes manifests in the main branch are reflected in your cluster.  
+
+When a Kubernetes manifest is removed from the podinfo repository, Flux removes it from your cluster.  
+When you delete a Kustomization from the repository, Flux removes all Kubernetes objects previously applied from that Kustomization.  
+When you alter the podinfo deployment using kubectl edit, the changes are reverted to match the state described in Git.
+
