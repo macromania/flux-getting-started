@@ -257,6 +257,17 @@ When a Kubernetes manifest is removed from the podinfo repository, Flux removes 
 When you delete a Kustomization from the repository, Flux removes all Kubernetes objects previously applied from that Kustomization.  
 When you alter the podinfo deployment using kubectl edit, the changes are reverted to match the state described in Git.
 
+### Accessing podinfo Service
+
+You can use `kubectl port-forward` to connect to a podinfo service running in the cluster.
+
+```sh
+kubectl port-forward service/podinfo 9898:9898
+```
+
+This creates a forwarding between `localhost:9898` and `service/podinfo` in your cluster.  
+Visiting `http://localhost:9898` will show podinfo welcome page.
+
 #### Bonus
 
 Deploy Kubernetes cluster visualiser and visual explorer: KubeView.
